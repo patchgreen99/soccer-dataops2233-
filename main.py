@@ -1,32 +1,49 @@
 import json
 import math
 
-with open('oneFrame.json', 'r') as f:
-    dataMatch = json.load(f)
-print(dataMatch)
 
-frameData = json.loads(dataMatch['FrameData'])
-ballPosition = frameData[0]['BallPosition'][0]
+# frameData = json.loads(line['FrameData'])
 
-ballSpeed = ballPosition['Speed']
-ballX = ballPosition['X']
-ballY = ballPosition['Y']
+# with open('oneFrame.json.json', 'r') as f:
+#     dataMatch = json.load(f)
+#     print(dataMatch)
+#
+def playerInPossession(data):
+    frameCount = data['EXPR$1']
+    frameData = json.loads(data['FrameData'])
+    ballPosition = frameData[0]['BallPosition'][0]
+    players = frameData[0]["PlayerPositions"]
 
-print(ballX)
-print(ballY)
-print(ballSpeed)
+    playersInThreshold = []
 
-playersInThreshold = []
+    if ballPosition['Speed'] < 15:
+        # players = (frameData[0]["PlayerPositions"])
+        for player in players:
+            if math.sqrt(pow(player["X"] - ballPosition['X'], 2) + pow(player["Y"] - ballPosition['Y'], 2)) < 200:
+                if len(playersInThreshold) < 1:
+                    playersInThreshold.append([frameCount, player["JerseyNumber"], player["Team"]])
+                else:
+                    break
 
-if ballSpeed < 15:
-    players = (frameData[0]["PlayerPositions"])
-    for player in players:
-        jerseyNumber = player["JerseyNumber"]
-        team = player["Team"]
-        playerX = player["X"]
-        playerY = player["Y"]
+    if len(playersInThreshold) == 1:
+        playerInPossession = {"frameCount": playersInThreshold[0][0], "JerseyNumber": playersInThreshold[0][1], "team": playersInThreshold[0][2]}
+        return playerInPossession
+    else:
+        return None
 
-        if math.sqrt(pow(playerX-ballX, 2) + pow(playerY-ballY, 2)) < 200:
-            playersInThreshold.append([jerseyNumber, team])
 
-print(playersInThreshold)
+listOfPossessionInAMatch = []
+
+with open('test.json', 'r') as f:
+    for line in f:
+
+        dataMatch = json.loads(line)
+        # print()
+
+        # print(dataMatch)
+        possession = playerInPossession(dataMatch)
+        if possession is not None:
+            listOfPossessionInAMatch.append(possession)
+
+        print(listOfPossessionInAMatch)
+        print(len(listOfPossessionInAMatch))
