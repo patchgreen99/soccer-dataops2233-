@@ -29,7 +29,7 @@ def playerInPossession(data):
         playerInPossession = {"frameCount": playersInThreshold[0][0], "JerseyNumber": playersInThreshold[0][1], "team": playersInThreshold[0][2]}
         return playerInPossession
     else:
-        return None
+        return {"frameCount": -1, "JerseyNumber": -1, "team": -1}
 
 
 listOfPossessionInAMatch = []
@@ -45,5 +45,20 @@ with open('test.json', 'r') as f:
         if possession is not None:
             listOfPossessionInAMatch.append(possession)
 
-        print(listOfPossessionInAMatch)
-        print(len(listOfPossessionInAMatch))
+print(listOfPossessionInAMatch)
+print(len(listOfPossessionInAMatch))
+
+team1 = 0
+team0 = 0
+noTeam = 0
+for data in listOfPossessionInAMatch:
+    team = data['team']
+    if team == 1:
+        team1 +=1
+    elif team == 0:
+        team0 +=1
+    else:
+        noTeam +=1
+
+print(team1, team0, noTeam)
+
