@@ -2,13 +2,7 @@ import json
 import math
 
 
-# frameData = json.loads(line['FrameData'])
-
-# with open('oneFrame.json.json', 'r') as f:
-#     dataMatch = json.load(f)
-#     print(dataMatch)
-#
-def playerInPossession(data):
+def playersInPossession(data):
     frameCount = data['EXPR$1']
     frameData = json.loads(data['FrameData'])
     ballPosition = frameData[0]['BallPosition'][0]
@@ -17,48 +11,41 @@ def playerInPossession(data):
     playersInThreshold = []
 
     if ballPosition['Speed'] < 15:
-        # players = (frameData[0]["PlayerPositions"])
         for player in players:
-            if math.sqrt(pow(player["X"] - ballPosition['X'], 2) + pow(player["Y"] - ballPosition['Y'], 2)) < 200:
-                if len(playersInThreshold) < 1:
+            if player["Team"] == 1 or player["Team"] == 0:
+                if math.sqrt(pow(player["X"] - ballPosition['X'], 2) + pow(player["Y"] - ballPosition['Y'], 2)) < 200:
                     playersInThreshold.append([frameCount, player["JerseyNumber"], player["Team"]])
-                else:
-                    break
 
     if len(playersInThreshold) == 1:
         playerInPossession = {"frameCount": playersInThreshold[0][0], "JerseyNumber": playersInThreshold[0][1], "team": playersInThreshold[0][2]}
         return playerInPossession
     else:
-        return {"frameCount": -1, "JerseyNumber": -1, "team": -1}
+        return None
 
 
 listOfPossessionInAMatch = []
+teamHome = 0
+teamAway = 0
+noTeam = 0
 
-with open('test.json', 'r') as f:
+with open('fullMatch.json', 'r') as f:
     for line in f:
 
         dataMatch = json.loads(line)
-        # print()
+        possession = playersInPossession(dataMatch)
 
-        # print(dataMatch)
-        possession = playerInPossession(dataMatch)
-        if possession is not None:
+        if possession is None:
+            noTeam +=1
+        else:
             listOfPossessionInAMatch.append(possession)
 
-print(listOfPossessionInAMatch)
-print(len(listOfPossessionInAMatch))
-
-team1 = 0
-team0 = 0
-noTeam = 0
 for data in listOfPossessionInAMatch:
     team = data['team']
     if team == 1:
-        team1 +=1
+        teamHome += 1
     elif team == 0:
-        team0 +=1
-    else:
-        noTeam +=1
+        teamAway += 1
 
-print(team1, team0, noTeam)
+print(teamHome, teamAway, noTeam)
+
 
